@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Agent System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div id="chat-container">
+        <header class="chat-header">
+            <h1>AI Agent System</h1>
+        </header>
+        <div id="chat-window">
+            <!-- 初期メッセージ -->
+            <div class="message agent">
+                <img src="{{ url_for('static', filename='images/ae.png') }}" class="chat-icon" alt="Agent">
+                <div class="message-bubble">こんにちは！何かお話しましょう。</div>
+            </div>
+        </div>
+        <footer class="chat-footer">
+            <form id="message-form">
+                <input type="text" id="message-input" placeholder="メッセージを入力..." autocomplete="off">
+                <button type="submit">送信</button>
+            </form>
+        </footer>
+    </div>
+
+    <!-- JavaScriptファイルを読み込む -->
+    <script src="{{ url_for('static', filename='main.js') }}"></script>
+</body>
+</html>
