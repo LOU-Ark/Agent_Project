@@ -13,17 +13,19 @@ jobs:
       id-token: 'write'
 
     steps:
+      # 1番目のステップ: リポジトリのチェックアウト
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
+      # 2番目のステップ: Google Cloudへの認証
       - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v1
+        uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: 'projects/oceanic-camera-465821-r2/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
           service_account: 'cloud-run-deployer@oceanic-camera-465821-r2.iam.gserviceaccount.com'
 
+      # ★ 3番目のステップ: Cloud Buildへのジョブ提出
       - name: Submit build to Google Cloud Build
         uses: google-github-actions/submit-cloud-build@v2
         with:
           project: 'oceanic-camera-465821-r2'
-          gcloud_version: 'latest'
