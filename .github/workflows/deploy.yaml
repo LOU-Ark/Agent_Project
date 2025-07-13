@@ -1,0 +1,29 @@
+name: Deploy to Cloud Run
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          workload_identity_provider: 'projects/oceanic-camera-465821-r2/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
+          service_account: 'cloud-run-deployer@oceanic-camera-465821-r2.iam.gserviceaccount.com'
+
+      - name: Submit build to Google Cloud Build
+        uses: google-github-actions/submit-cloud-build@v2
+        with:
+          project: 'oceanic-camera-465821-r2'
+          gcloud_version: 'latest'

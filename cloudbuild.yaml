@@ -1,0 +1,37 @@
+steps:
+  # 1. Dockerイメージをビルドする
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/agent-orchestrator/app:latest' # イメージ名
+      - '.'
+
+  # 2. ビルドしたイメージをGoogle Artifact Registryにプッシュする
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/agent-orchestrator/app:latest'
+
+  # 3. イメージをGoogle Cloud Runにデプロイする
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'agent-orchestrator-py' # Cloud Runのサービス名
+      - '--image'
+      - 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/agent-orchestrator/app:latest'
+      - '--region'
+      - 'asia-northeast1' # デプロイ先のリージョン (東京)
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated' # 誰でもアクセスできるようにする
+      - '--set-env-vars'
+      - 'GEMINI_API_KEY=$$GEMINI_API_KEY' # Secret ManagerからAPIキーを環境変数として渡す
+
+# Secret Managerに保存したAPIキーを利用する設定
+availableSecrets:
+  secretManager:
+    - versionName: projects/$PROJECT_ID/secrets/GEMINI_API_KEY/versions/latest
+      env: 'GEMINI_API_KEY'
