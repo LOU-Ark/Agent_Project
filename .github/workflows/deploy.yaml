@@ -1,4 +1,4 @@
-name: Deploy to Cloud Run
+name: Deploy to Cloud Run using Cloud Build
 
 on:
   push:
@@ -7,25 +7,32 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    # 権限設定は変更なし
     permissions:
       contents: 'read'
       id-token: 'write'
+    runs-on: ubuntu-latest
 
     steps:
-      # 1番目のステップ: リポジトリのチェックアウト
+      # 1. リポジトリのコードをチェックアウト (最新のv4を推奨)
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2番目のステップ: Google Cloudへの認証
+      # 2. Google Cloudへの認証 (最新のv2を推奨)
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: 'projects/oceanic-camera-465821-r2/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
           service_account: 'cloud-run-deployer@oceanic-camera-465821-r2.iam.gserviceaccount.com'
 
-      # ★ 3番目のステップ: Cloud Buildへのジョブ提出
-      - name: Submit build to Google Cloud Build
-        uses: google-github-actions/submit-cloud-build@v2
+          
+      # 3. gcloudコマンドラインツールをセットアップ
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
         with:
-          project: 'oceanic-camera-465821-r2'
+          project_id: 'oceanic-camera-465821-r2' # ★あなたの設定に書き換える
+
+      # 4. gcloudコマンドを使ってCloud Buildを直接実行
+      # --configにcloudbuild.yamlを指定し、現在のディレクトリ(.)でビルドを実行
+      - name: Run Cloud Build
+        run: gcloud builds submit . --config=cloudbuild.yaml
