@@ -20,6 +20,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # ▼▼▼ このデバッグステップを追加 ▼▼▼
+      - name: 'Debug: Print GitHub context'
+        run: |
+          echo "========================================="
+          echo "GitHub Repository: ${{ github.repository }}"
+          echo "========================================="
+      # ▲▲▲ ここまでを追加 ▲▲▲
+      
       # 2. Google Cloudへの認証 (最新のv2を推奨)
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
