@@ -9,39 +9,31 @@ on:
 
 jobs:
   deploy:
-    # 権限設定は変更なし
+    # サービスアカウントキー方式ではid-tokenは不要です
     permissions:
       contents: 'read'
-      id-token: 'write'
     runs-on: ubuntu-latest
 
     steps:
-      # 1. リポジトリのコードをチェックアウト (最新のv4を推奨)
+      # 1. リポジトリのコードをチェックアウト
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # ▼▼▼ このデバッグステップを追加 ▼▼▼
-      - name: 'Debug: Print GitHub context'
-        run: |
-          echo "========================================="
-          echo "GitHub Repository: ${{ github.repository }}"
-          echo "========================================="
-      # ▲▲▲ ここまでを追加 ▲▲▲
-      
-      # 2. Google Cloudへの認証 (最新のv2を推奨)
+      # (デバッグ用のステップは、もう不要なので削除して構いません)
+
+      # 2. Google Cloudへの認証 (サービスアカウントキー方式)
+      # ★★★ ここが重要な変更点 ★★★
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
-          workload_identity_provider: 'projects/oceanic-camera-465821-r2/locations/global/workloadIdentityPools/github-pool/providers/github-provider-v2' # <<--- ここを更新！
-          service_account: 'cloud-run-deployer@oceanic-camera-465821-r2.iam.gserviceaccount.com'
+          credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
           
       # 3. gcloudコマンドラインツールをセットアップ
       - name: Set up Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
         with:
-          project_id: 'oceanic-camera-465821-r2' # ★あなたの設定に書き換える
+          project_id: 'oceanic-camera-465821-r2'
 
       # 4. gcloudコマンドを使ってCloud Buildを直接実行
-      # --configにcloudbuild.yamlを指定し、現在のディレクトリ(.)でビルドを実行
       - name: Run Cloud Build
         run: gcloud builds submit . --config=cloudbuild.yaml
